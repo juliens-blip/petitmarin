@@ -48,10 +48,13 @@ export default function InscriptionPage() {
       })
 
       if (signUpError) {
+        console.error('Supabase signup error:', signUpError)
         if (signUpError.message.includes('already registered')) {
           setError('Un compte existe déjà avec cet email.')
+        } else if (signUpError.message.includes('email')) {
+          setError(`Erreur email: ${signUpError.message}`)
         } else {
-          setError('Une erreur est survenue lors de l\'inscription.')
+          setError(`Erreur: ${signUpError.message}`)
         }
         setIsLoading(false)
         return

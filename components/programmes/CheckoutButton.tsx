@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 type CheckoutButtonProps = {
   label?: string
@@ -8,41 +9,12 @@ type CheckoutButtonProps = {
 }
 
 export function CheckoutButton({ label = 'Commencer maintenant', className }: CheckoutButtonProps) {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
-  const handleClick = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      const response = await fetch('/api/stripe/checkout', {
-        method: 'POST',
-      })
-
-      if (response.status === 401) {
-        setError('Connectez-vous pour lancer le paiement.')
-        return
-      }
-
-      if (!response.ok) {
-        setError('Impossible de créer la session de paiement.')
-        return
-      }
-
-      const data = await response.json()
-
-      if (!data?.url) {
-        setError('URL de paiement introuvable.')
-        return
-      }
-
-      window.location.href = data.url
-    } catch (err) {
-      setError('Erreur inattendue lors du démarrage du paiement.')
-    } finally {
-      setLoading(false)
-    }
+  const handleClick = () => {
+    setLoading(true)
+    router.push('/paiement')
   }
 
   return (
@@ -55,7 +27,6 @@ export function CheckoutButton({ label = 'Commencer maintenant', className }: Ch
       >
         {loading ? 'Redirection…' : label}
       </button>
-      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
     </div>
   )
 }

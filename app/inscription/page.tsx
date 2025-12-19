@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -9,6 +9,8 @@ import { Footer } from '@/components/layout/Footer'
 
 export default function InscriptionPage() {
   const router = useRouter()
+  const [nextPath, setNextPath] = useState('/dashboard')
+  const nextQuery = `?next=${encodeURIComponent(nextPath)}`
   const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -16,6 +18,14 @@ export default function InscriptionPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const rawNext = params.get('next')
+    if (rawNext && rawNext.startsWith('/')) {
+      setNextPath(rawNext)
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,6 +46,7 @@ export default function InscriptionPage() {
 
     try {
       const supabase = createClient()
+      const emailRedirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`
 
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -44,6 +55,7 @@ export default function InscriptionPage() {
           data: {
             full_name: fullName,
           },
+          emailRedirectTo,
         },
       })
 
@@ -66,7 +78,7 @@ export default function InscriptionPage() {
         return
       }
 
-      router.push('/dashboard')
+      router.push(nextPath)
       router.refresh()
     } catch (err) {
       setError('Une erreur est survenue. Veuillez réessayer.')
@@ -88,12 +100,17 @@ export default function InscriptionPage() {
                   </svg>
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">Vérifiez votre email</h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-600 mb-4">
                   Nous avons envoyé un lien de confirmation à <strong>{email}</strong>.
                   Cliquez sur le lien pour activer votre compte.
                 </p>
+                {nextPath === '/paiement' && (
+                  <p className="text-gray-600 mb-4">
+                    Une fois votre email confirme, vous serez redirige vers le paiement.
+                  </p>
+                )}
                 <Link
-                  href="/connexion"
+                  href={`/connexion${nextQuery}`}
                   className="inline-block px-6 py-3 bg-[#007bff] text-white rounded-lg hover:bg-[#0056b3] transition-colors font-bold"
                 >
                   Retour à la connexion
@@ -218,7 +235,7 @@ export default function InscriptionPage() {
                   <p className="text-gray-600">
                     Déjà un compte ?{' '}
                     <Link
-                      href="/connexion"
+                      href={`/connexion${nextQuery}`}
                       className="text-[#007bff] hover:text-[#0056b3] font-semibold"
                     >
                       Se connecter

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -9,10 +9,20 @@ import { Footer } from '@/components/layout/Footer'
 
 export default function ConnexionPage() {
   const router = useRouter()
+  const [nextPath, setNextPath] = useState('/dashboard')
+  const nextQuery = `?next=${encodeURIComponent(nextPath)}`
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const rawNext = params.get('next')
+    if (rawNext && rawNext.startsWith('/')) {
+      setNextPath(rawNext)
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -33,7 +43,7 @@ export default function ConnexionPage() {
         return
       }
 
-      router.push('/dashboard')
+      router.push(nextPath)
       router.refresh()
     } catch (err) {
       setError('Une erreur est survenue. Veuillez réessayer.')
@@ -121,7 +131,7 @@ export default function ConnexionPage() {
                   <p className="text-gray-600">
                     Pas encore de compte ?{' '}
                     <Link
-                      href="/inscription"
+                      href={`/inscription${nextQuery}`}
                       className="text-[#007bff] hover:text-[#0056b3] font-semibold"
                     >
                       Créer un compte

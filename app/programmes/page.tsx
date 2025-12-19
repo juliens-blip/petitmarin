@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { ProgrammeVideoSection } from '@/components/programmes/ProgrammeVideoSection'
+import { CheckoutButton } from '@/components/programmes/CheckoutButton'
 
 export default function ProgrammesPage() {
   const programs = [
@@ -17,7 +18,6 @@ export default function ProgrammesPage() {
         'Ressources téléchargeables (PDFs, checklists)',
         'Mises à jour gratuites',
       ],
-      stripeLink: 'https://buy.stripe.com/00w5kD4fscjmd8Y4VHcbC00',
     },
     {
       id: 'capitaine',
@@ -29,10 +29,9 @@ export default function ProgrammesPage() {
         '2 sessions de coaching individuel',
         'Checklist personnalisée selon votre projet',
         'Accès prioritaire au support',
-        'Groupe privé d\'entraide',
+        "Groupe privé d'entraide",
       ],
       featured: true,
-      stripeLink: 'https://buy.stripe.com/00w5kD4fscjmd8Y4VHcbC00',
     },
     {
       id: 'marin',
@@ -46,14 +45,13 @@ export default function ProgrammesPage() {
         'Support téléphonique prioritaire',
         'Analyse personnalisée de vos annonces',
       ],
-      stripeLink: 'https://buy.stripe.com/00w5kD4fscjmd8Y4VHcbC00',
     },
   ]
 
   const modules = [
     {
       number: 1,
-      title: 'Les fondamentaux de l\'achat de bateau',
+      title: "Les fondamentaux de l'achat de bateau",
       description: 'Définir votre budget, comprendre les coûts cachés',
     },
     {
@@ -63,7 +61,7 @@ export default function ProgrammesPage() {
     },
     {
       number: 3,
-      title: 'L\'inspection technique',
+      title: "L'inspection technique",
       description: 'Détecter les problèmes, checklist complète',
     },
     {
@@ -74,7 +72,7 @@ export default function ProgrammesPage() {
     {
       number: 5,
       title: 'Négociation et achat',
-      description: 'Techniques de négociation, finaliser l\'achat',
+      description: "Techniques de négociation, finaliser l'achat",
     },
     {
       number: 6,
@@ -99,7 +97,8 @@ export default function ProgrammesPage() {
             Nos Programmes de Formation
           </h1>
           <p className="text-xl md:text-2xl text-white/90 max-w-2xl mx-auto">
-            Choisissez la formule qui correspond à vos besoins et devenez propriétaire en toute confiance
+            Choisissez la formule qui correspond à vos besoins et devenez propriétaire en toute
+            confiance
           </p>
         </div>
       </section>
@@ -112,7 +111,7 @@ export default function ProgrammesPage() {
               Choisissez votre programme
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Paiement unique • Accès à vie • Sans abonnement
+              Paiement unique · Accès à vie · Sans abonnement
             </p>
           </div>
 
@@ -126,7 +125,7 @@ export default function ProgrammesPage() {
               >
                 {program.featured && (
                   <div className="bg-[#007bff] text-white text-center py-3 font-bold text-lg">
-                    ⭐ LE PLUS POPULAIRE
+                    ★ LE PLUS POPULAIRE
                   </div>
                 )}
                 <div className="p-8">
@@ -158,16 +157,9 @@ export default function ProgrammesPage() {
                       </li>
                     ))}
                   </ul>
-                  <a
-                    href={program.stripeLink}
-                    className={`block text-center px-8 py-4 rounded-lg font-bold text-lg transition-all transform hover:scale-105 ${
-                      program.featured
-                        ? 'bg-[#007bff] text-white hover:bg-[#0056b3] shadow-lg'
-                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                    }`}
-                  >
-                    Commencer maintenant
-                  </a>
+                  <CheckoutButton
+                    label={program.featured ? 'Commencer maintenant' : 'Sélectionner ce programme'}
+                  />
                 </div>
               </div>
             ))}
@@ -298,12 +290,10 @@ export default function ProgrammesPage() {
               Rejoignez des centaines d'acheteurs satisfaits et réussissez votre achat
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <a
-                href={programs[1].stripeLink}
-                className="inline-block px-8 py-4 bg-white text-[#007bff] rounded-lg hover:bg-gray-100 transition-colors font-bold text-lg shadow-xl"
-              >
-                Choisir Capitaine Averti - 149€
-              </a>
+              <CheckoutButton
+                label="Choisir Capitaine Averti - 149€"
+                className="max-w-sm"
+              />
               <Link
                 href="/connexion"
                 className="text-white underline hover:no-underline"

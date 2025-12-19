@@ -4,6 +4,15 @@ import { createCheckoutSession } from '@/lib/stripe/client'
 
 export async function POST(request: Request) {
   try {
+    const priceId = process.env.STRIPE_PRICE_ID
+
+    if (!priceId) {
+      return NextResponse.json(
+        { error: 'Stripe price id missing' },
+        { status: 500 }
+      )
+    }
+
     const supabase = await createClient()
 
     // Get current user
@@ -18,10 +27,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // Get user profile to get email
+    // Get user profile to get email + Stripe customer id
     const { data: profile } = await supabase
       .from('users')
-      .select('email')
+      .select('email, stripe_customer_id')
       .eq('id', user.id)
       .single()
 
@@ -34,11 +43,14 @@ export async function POST(request: Request) {
 
     // Create Stripe checkout session
     const { origin } = new URL(request.url)
-    const session = await createCheckoutSession(
-      profile.email,
-      `${origin}/paiement/success?session_id={CHECKOUT_SESSION_ID}`,
-      `${origin}/dashboard`
-    )
+    const session = await createCheckoutSession({
+      email: profile.email,
+      userId: user.id,
+      priceId,
+      successUrl: `${origin}/paiement/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${origin}/dashboard`,
+      customerId: profile.stripe_customer_id,
+    })
 
     return NextResponse.json({ url: session.url })
   } catch (err) {

@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
-import { headers } from 'next/headers'
 import Stripe from 'stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
+import type { Database } from '@/types/database.types'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2025-11-17.clover',
 })
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 const allowedPriceId = process.env.STRIPE_PRICE_ID
 
 if (!webhookSecret) {
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.text()
-  const signature = headers().get('stripe-signature')
+  const signature = request.headers.get('stripe-signature')
 
   if (!signature) {
     return NextResponse.json(
@@ -139,7 +139,9 @@ export async function POST(request: Request) {
           break
         }
 
-        const updates: Record<string, unknown> = { has_access: true }
+        const updates: Database['public']['Tables']['users']['Update'] = {
+          has_access: true,
+        }
 
         if (customerId) {
           updates.stripe_customer_id = customerId
@@ -193,7 +195,9 @@ export async function POST(request: Request) {
           break
         }
 
-        const updates: Record<string, unknown> = { has_access: shouldHaveAccess }
+        const updates: Database['public']['Tables']['users']['Update'] = {
+          has_access: shouldHaveAccess,
+        }
 
         if (customerId) {
           updates.stripe_customer_id = customerId

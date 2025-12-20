@@ -5,14 +5,14 @@ import { Footer } from '@/components/layout/Footer'
 export default function Module3Page() {
   const pdfResources = [
     {
-      title: 'Inspection technique - anti-pieges',
-      url: 'https://www.dropbox.com/scl/fi/38in7rh54sgou431hs2v0/Module-3-Inspection-Technique-Anti-Pieges.pdf?rlkey=mu7ntmk2jlhj5hun111d7hro0&st=ca3n4h8l&dl=1',
-      description: 'Checklist et points critiques a verifier.',
+      title: "Inspection technique - anti-pieges",
+      url: "https://www.dropbox.com/scl/fi/38in7rh54sgou431hs2v0/Module-3-Inspection-Technique-Anti-Pieges.pdf?rlkey=mu7ntmk2jlhj5hun111d7hro0&st=ca3n4h8l&dl=1",
+      description: "Checklist et points critiques a verifier.",
     },
     {
-      title: 'Inspection technique - anti-pieges 2',
-      url: 'https://www.dropbox.com/scl/fi/hxsmfnt9i4ak9dtbh26yb/Module-3-Inspection-Technique-Anti-Pieges-2.pdf?rlkey=yp86cmd46f6ikuq5upzcldski&st=sztto62e&dl=1',
-      description: 'Complements et cas supplementaires.',
+      title: "Inspection technique - anti-pieges 2",
+      url: "https://www.dropbox.com/scl/fi/hxsmfnt9i4ak9dtbh26yb/Module-3-Inspection-Technique-Anti-Pieges-2.pdf?rlkey=yp86cmd46f6ikuq5upzcldski&st=sztto62e&dl=1",
+      description: "Complements et cas supplementaires.",
     },
   ]
 

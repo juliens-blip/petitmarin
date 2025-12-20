@@ -5,14 +5,14 @@ import { Footer } from '@/components/layout/Footer'
 export default function Module5Page() {
   const pdfResources = [
     {
-      title: 'Achat securise de voilier - guide complet',
-      url: 'https://www.dropbox.com/scl/fi/47nelwgfj3p8qh2fsebay/Achat-Securise-de-Voilier-Guide-Complet.pdf?rlkey=anvfkvfcnabbwgd052a444xmf&st=2l1sllfv&dl=1',
-      description: 'Processus securise de l'offre a la signature.',
+      title: "Achat securise de voilier - guide complet",
+      url: "https://www.dropbox.com/scl/fi/47nelwgfj3p8qh2fsebay/Achat-Securise-de-Voilier-Guide-Complet.pdf?rlkey=anvfkvfcnabbwgd052a444xmf&st=2l1sllfv&dl=1",
+      description: "Processus securise de l'offre a la signature.",
     },
     {
-      title: 'Juridique et administratif - module 5',
-      url: 'https://www.dropbox.com/scl/fi/mjl90gtdkhepgzfxpjt29/Module-5-Juridique-and-Administratif.pdf?rlkey=5a8gqcqdjdhqz54q2nmnwd5r8&st=o5wxbgd0&dl=1',
-      description: 'Documents, obligations et formalites.',
+      title: "Juridique et administratif - module 5",
+      url: "https://www.dropbox.com/scl/fi/mjl90gtdkhepgzfxpjt29/Module-5-Juridique-and-Administratif.pdf?rlkey=5a8gqcqdjdhqz54q2nmnwd5r8&st=o5wxbgd0&dl=1",
+      description: "Documents, obligations et formalites.",
     },
   ]
 

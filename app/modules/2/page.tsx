@@ -5,14 +5,14 @@ import { Footer } from '@/components/layout/Footer'
 export default function Module2Page() {
   const pdfResources = [
     {
-      title: 'Types de bateaux - module 2',
-      url: 'https://www.dropbox.com/scl/fi/qh192d9mdiveavv62qzve/Types-de-Bateaux-module-2.pdf?rlkey=bsaqqvm63lz6qz2c0n4rwed8u&st=o35lr7vx&dl=1',
-      description: 'Panorama des types de bateaux et usages.',
+      title: "Types de bateaux - module 2",
+      url: "https://www.dropbox.com/scl/fi/qh192d9mdiveavv62qzve/Types-de-Bateaux-module-2.pdf?rlkey=bsaqqvm63lz6qz2c0n4rwed8u&st=o35lr7vx&dl=1",
+      description: "Panorama des types de bateaux et usages.",
     },
     {
-      title: 'Guide d'achat - Merry Fisher 795',
-      url: 'https://www.dropbox.com/scl/fi/jbzboelyyumf1ucnfng6j/Guide-dAchat-Le-Merry-Fisher-795.pdf?rlkey=jyeuyzm9rgk2k213olwszdqno&st=l3d9ltlx&dl=1',
-      description: 'Exemple concret pour evaluer un modele.',
+      title: "Guide d'achat - Merry Fisher 795",
+      url: "https://www.dropbox.com/scl/fi/jbzboelyyumf1ucnfng6j/Guide-dAchat-Le-Merry-Fisher-795.pdf?rlkey=jyeuyzm9rgk2k213olwszdqno&st=l3d9ltlx&dl=1",
+      description: "Exemple concret pour evaluer un modele.",
     },
   ]
 

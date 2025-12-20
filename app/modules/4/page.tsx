@@ -5,14 +5,14 @@ import { Footer } from '@/components/layout/Footer'
 export default function Module4Page() {
   const pdfResources = [
     {
-      title: 'Negociation et achat - module 4',
-      url: 'https://www.dropbox.com/scl/fi/kgu5vl6ddsuzrey1wgg03/Negociation-et-Achat-de-Votre-Bateau-module-4.pdf?rlkey=nwr1hxoaeydptlhutllx2lrxu&st=4wbs7p6l&dl=1',
-      description: 'Guide pratique pour negocier et acheter.',
+      title: "Negociation et achat - module 4",
+      url: "https://www.dropbox.com/scl/fi/kgu5vl6ddsuzrey1wgg03/Negociation-et-Achat-de-Votre-Bateau-module-4.pdf?rlkey=nwr1hxoaeydptlhutllx2lrxu&st=4wbs7p6l&dl=1",
+      description: "Guide pratique pour negocier et acheter.",
     },
     {
-      title: 'Negociation et achat d'un bateau d'occasion',
-      url: 'https://www.dropbox.com/scl/fi/plzeucnmms72tl3iih9ke/Negociation-and-Achat-dun-Bateau-dOccasion.pdf?rlkey=jhqj728od7x665axfyigpf4f9&st=lx9phh0i&dl=1',
-      description: 'Conseils pour le marche de l'occasion.',
+      title: "Negociation et achat d'un bateau d'occasion",
+      url: "https://www.dropbox.com/scl/fi/plzeucnmms72tl3iih9ke/Negociation-and-Achat-dun-Bateau-dOccasion.pdf?rlkey=jhqj728od7x665axfyigpf4f9&st=lx9phh0i&dl=1",
+      description: "Conseils pour le marche de l'occasion.",
     },
   ]
 

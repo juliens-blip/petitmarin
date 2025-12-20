@@ -5,14 +5,14 @@ import { Footer } from '@/components/layout/Footer'
 export default function Module6Page() {
   const pdfResources = [
     {
-      title: 'Salons et marche de l'occasion - module 6',
-      url: 'https://www.dropbox.com/scl/fi/xnvabzrx10tytmxpk1kde/Salons-and-Marche-de-lOccasion-module-6.pdf?rlkey=6q0dyo11h33eb7coz56oel91e&st=j6ncqyj5&dl=1',
-      description: 'Ou comparer et acheter en salon.',
+      title: "Salons et marche de l'occasion - module 6",
+      url: "https://www.dropbox.com/scl/fi/xnvabzrx10tytmxpk1kde/Salons-and-Marche-de-lOccasion-module-6.pdf?rlkey=6q0dyo11h33eb7coz56oel91e&st=j6ncqyj5&dl=1",
+      description: "Ou comparer et acheter en salon.",
     },
     {
-      title: 'Salons et marche de l'occasion - complement',
-      url: 'https://www.dropbox.com/scl/fi/m6qpnhcpyn22j0uv0uamf/Module-6-Salons-and-Marche-de-lOccasion.pdf?rlkey=dc39wmb3fu7tre6p090h2ws5t&st=u6ycej6a&dl=1',
-      description: 'Complements et checklist salon.',
+      title: "Salons et marche de l'occasion - complement",
+      url: "https://www.dropbox.com/scl/fi/m6qpnhcpyn22j0uv0uamf/Module-6-Salons-and-Marche-de-lOccasion.pdf?rlkey=dc39wmb3fu7tre6p090h2ws5t&st=u6ycej6a&dl=1",
+      description: "Complements et checklist salon.",
     },
   ]
 

@@ -5,14 +5,14 @@ import { Footer } from '@/components/layout/Footer'
 export default function Module1Page() {
   const pdfResources = [
     {
-      title: 'Budget et financement - diapo module 1',
-      url: 'https://www.dropbox.com/scl/fi/s92j0onjqrkjq67w1eicz/Budget-and-Financement-pour-Votre-Premier-Bateau-diapo-module1.pdf?rlkey=a9mt7et3cjf30zx1oay33swvx&st=5u3z08ma&dl=1',
-      description: 'Presentation generale du budget et du financement.',
+      title: "Budget et financement - diapo module 1",
+      url: "https://www.dropbox.com/scl/fi/s92j0onjqrkjq67w1eicz/Budget-and-Financement-pour-Votre-Premier-Bateau-diapo-module1.pdf?rlkey=a9mt7et3cjf30zx1oay33swvx&st=5u3z08ma&dl=1",
+      description: "Presentation generale du budget et du financement.",
     },
     {
-      title: 'Cas pratique - Voilier familial',
-      url: 'https://www.dropbox.com/scl/fi/h75xqs5uatvb57dzjbzll/Cas-pratique-Voilier-familial.pdf?rlkey=mnq73k50q6ifco2q9btmzxt49&st=f5037tke&dl=1',
-      description: 'Etude de cas pour appliquer la methode.',
+      title: "Cas pratique - Voilier familial",
+      url: "https://www.dropbox.com/scl/fi/h75xqs5uatvb57dzjbzll/Cas-pratique-Voilier-familial.pdf?rlkey=mnq73k50q6ifco2q9btmzxt49&st=f5037tke&dl=1",
+      description: "Etude de cas pour appliquer la methode.",
     },
   ]
 

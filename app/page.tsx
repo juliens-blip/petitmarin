@@ -50,7 +50,7 @@ export default function Home() {
       <section
         className="relative min-h-[600px] flex items-center justify-center text-white"
         style={{
-          background: `linear-gradient(135deg, rgba(36, 107, 253, 0.82), rgba(25, 195, 125, 0.72)), url('https://images.unsplash.com/photo-1567899378494-47b22a2ae96a?w=1600') center/cover no-repeat`,
+          background: `linear-gradient(135deg, rgba(36, 107, 253, 0.82), rgba(25, 195, 125, 0.72)), url('https://www.dropbox.com/scl/fi/b3asvg27ad3h6k5tmnw7l/unnamed-2025-09-02T174608.918.png?rlkey=0jocpoxaqohudtqlbe2nnvihy&st=rlmdmtnc&dl=1') center/cover no-repeat`,
         }}
       >
         <div className="container mx-auto px-6 py-24 text-center">
@@ -141,7 +141,13 @@ export default function Home() {
       </section>
 
       {/* Video Section */}
-      <section className="py-20" id="presentation">
+      <section
+        className="py-20"
+        id="presentation"
+        style={{
+          background: `linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.9)), url('https://www.dropbox.com/scl/fi/3iyuq7nbghq03mrldei2x/unnamed-2025-09-07T222151.578.png?rlkey=z7cr3f7htlf225yfl59mdy7yb&st=7uc6o97w&dl=1') center/cover no-repeat`,
+        }}
+      >
         <div className="container mx-auto px-6">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">

@@ -14,6 +14,11 @@ if (!webhookSecret) {
   throw new Error('Missing STRIPE_WEBHOOK_SECRET environment variable')
 }
 
+function normalizeEmail(email?: string | null) {
+  const trimmed = email?.trim()
+  return trimmed ? trimmed.toLowerCase() : undefined
+}
+
 function isActiveSubscription(status: Stripe.Subscription.Status) {
   return status === 'active' || status === 'trialing'
 }
@@ -43,16 +48,73 @@ async function resolveUserId(
   }
 
   if (params.email) {
+    const normalizedEmail = normalizeEmail(params.email)
+    if (!normalizedEmail) return undefined
+
     const { data } = await supabase
       .from('users')
       .select('id')
-      .eq('email', params.email)
+      .ilike('email', normalizedEmail)
       .single()
 
     if (data?.id) return data.id
   }
 
   return undefined
+}
+
+async function applyUserUpdates(
+  supabase: ReturnType<typeof createAdminClient>,
+  params: {
+    userId: string
+    hasAccess: boolean
+    customerId?: string
+    email?: string | null
+  }
+) {
+  const updates: Database['public']['Tables']['users']['Update'] = {
+    has_access: params.hasAccess,
+  }
+
+  if (params.customerId) {
+    updates.stripe_customer_id = params.customerId
+  }
+
+  const { data: updatedRows, error: updateError } = await supabase
+    .from('users')
+    .update(updates)
+    .eq('id', params.userId)
+    .select('id')
+
+  if (updateError) {
+    return { ok: false, error: updateError }
+  }
+
+  if (updatedRows && updatedRows.length > 0) {
+    return { ok: true }
+  }
+
+  const normalizedEmail = normalizeEmail(params.email)
+  if (!normalizedEmail) {
+    return { ok: false, error: new Error('Missing email for user upsert') }
+  }
+
+  const insertPayload: Database['public']['Tables']['users']['Insert'] = {
+    id: params.userId,
+    email: normalizedEmail,
+    has_access: params.hasAccess,
+    ...(params.customerId ? { stripe_customer_id: params.customerId } : {}),
+  }
+
+  const { error: upsertError } = await supabase
+    .from('users')
+    .upsert(insertPayload, { onConflict: 'id' })
+
+  if (upsertError) {
+    return { ok: false, error: upsertError }
+  }
+
+  return { ok: true }
 }
 
 export async function POST(request: Request) {
@@ -92,7 +154,9 @@ export async function POST(request: Request) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
         const customerEmail = session.customer_email || session.customer_details?.email
-        const supabaseUserId = session.metadata?.supabase_user_id as string | undefined
+        const supabaseUserId =
+          (session.metadata?.supabase_user_id as string | undefined) ??
+          (session.client_reference_id as string | undefined)
 
         if (session.mode === 'subscription' && session.subscription) {
           const subscription = await stripe.subscriptions.retrieve(
@@ -134,21 +198,18 @@ export async function POST(request: Request) {
             break
           }
 
-          const updates: Database['public']['Tables']['users']['Update'] = {
-            has_access: true,
-          }
+          const updateResult = await applyUserUpdates(supabase, {
+            userId,
+            hasAccess: true,
+            customerId,
+            email: customerEmail,
+          })
 
-          if (customerId) {
-            updates.stripe_customer_id = customerId
-          }
-
-          const { error: updateError } = await supabase
-            .from('users')
-            .update(updates)
-            .eq('id', userId)
-
-          if (updateError) {
-            console.error('Error updating user access from checkout:', updateError)
+          if (!updateResult.ok) {
+            console.error(
+              'Error updating user access from checkout:',
+              updateResult.error
+            )
             return NextResponse.json(
               { error: 'Error updating user access' },
               { status: 500 }
@@ -190,21 +251,18 @@ export async function POST(request: Request) {
             break
           }
 
-          const updates: Database['public']['Tables']['users']['Update'] = {
-            has_access: true,
-          }
+          const updateResult = await applyUserUpdates(supabase, {
+            userId,
+            hasAccess: true,
+            customerId,
+            email: customerEmail,
+          })
 
-          if (customerId) {
-            updates.stripe_customer_id = customerId
-          }
-
-          const { error: updateError } = await supabase
-            .from('users')
-            .update(updates)
-            .eq('id', userId)
-
-          if (updateError) {
-            console.error('Error updating user access from checkout:', updateError)
+          if (!updateResult.ok) {
+            console.error(
+              'Error updating user access from checkout:',
+              updateResult.error
+            )
             return NextResponse.json(
               { error: 'Error updating user access' },
               { status: 500 }
@@ -250,21 +308,14 @@ export async function POST(request: Request) {
           break
         }
 
-        const updates: Database['public']['Tables']['users']['Update'] = {
-          has_access: shouldHaveAccess,
-        }
+        const updateResult = await applyUserUpdates(supabase, {
+          userId,
+          hasAccess: shouldHaveAccess,
+          customerId,
+        })
 
-        if (customerId) {
-          updates.stripe_customer_id = customerId
-        }
-
-        const { error: updateError } = await supabase
-          .from('users')
-          .update(updates)
-          .eq('id', userId)
-
-        if (updateError) {
-          console.error('Error syncing subscription access:', updateError)
+        if (!updateResult.ok) {
+          console.error('Error syncing subscription access:', updateResult.error)
           return NextResponse.json(
             { error: 'Error syncing subscription access' },
             { status: 500 }

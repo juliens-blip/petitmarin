@@ -10,9 +10,22 @@ import { CheckCircle2, Sparkles } from 'lucide-react'
 
 const allowedPriceId = process.env.STRIPE_PRICE_ID
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>
+
 type AccessResult = {
   granted: boolean
   reason?: string
+}
+
+function normalizeEmail(email?: string | null) {
+  const trimmed = email?.trim()
+  return trimmed ? trimmed.toLowerCase() : undefined
+}
+
+function emailsMatch(a?: string | null, b?: string | null) {
+  const normalizedA = normalizeEmail(a)
+  const normalizedB = normalizeEmail(b)
+  return Boolean(normalizedA && normalizedB && normalizedA === normalizedB)
 }
 
 function isActiveSubscription(status: Stripe.Subscription.Status) {
@@ -29,16 +42,28 @@ function getCustomerId(
 
 async function grantAccessFromSession(
   sessionId: string,
-  userId: string
+  userId: string,
+  userEmail: string | null | undefined,
+  supabaseClient: SupabaseServerClient
 ): Promise<AccessResult> {
   if (!allowedPriceId) {
     return { granted: false, reason: 'Stripe price id manquant.' }
   }
 
   const session = await stripe.checkout.sessions.retrieve(sessionId)
-  const sessionUserId = session.metadata?.supabase_user_id
+  const sessionUserId =
+    (session.metadata?.supabase_user_id as string | undefined) ??
+    (session.client_reference_id as string | undefined)
+  const sessionEmail = session.customer_email || session.customer_details?.email
 
-  if (!sessionUserId || sessionUserId !== userId) {
+  if (sessionUserId) {
+    if (sessionUserId !== userId && !emailsMatch(sessionEmail, userEmail)) {
+      return {
+        granted: false,
+        reason: 'Session Stripe invalide pour cet utilisateur.',
+      }
+    }
+  } else if (!emailsMatch(sessionEmail, userEmail)) {
     return { granted: false, reason: 'Session Stripe invalide pour cet utilisateur.' }
   }
 
@@ -81,22 +106,78 @@ async function grantAccessFromSession(
     return { granted: false, reason: 'Mode Stripe non pris en charge.' }
   }
 
-  const supabaseAdmin = createAdminClient()
   const updates = {
     has_access: true,
     ...(customerId ? { stripe_customer_id: customerId } : {}),
   }
+  const normalizedEmail = normalizeEmail(userEmail)
 
-  const { error } = await supabaseAdmin
+  try {
+    const supabaseAdmin = createAdminClient()
+    const { data: updatedRows, error: updateError } = await supabaseAdmin
+      .from('users')
+      .update(updates)
+      .eq('id', userId)
+      .select('id')
+
+    if (!updateError && updatedRows && updatedRows.length > 0) {
+      return { granted: true }
+    }
+
+    if (!updateError && normalizedEmail) {
+      const { error: upsertError } = await supabaseAdmin
+        .from('users')
+        .upsert(
+          {
+            id: userId,
+            email: normalizedEmail,
+            has_access: true,
+            ...(customerId ? { stripe_customer_id: customerId } : {}),
+          },
+          { onConflict: 'id' }
+        )
+
+      if (!upsertError) {
+        return { granted: true }
+      }
+    }
+  } catch (error) {
+    console.error('Admin update failed, falling back to user session.', error)
+  }
+
+  const { data: updatedRows, error } = await supabaseClient
     .from('users')
     .update(updates)
     .eq('id', userId)
+    .select('id')
+
+  if (!error && updatedRows && updatedRows.length > 0) {
+    return { granted: true }
+  }
+
+  if (!error && normalizedEmail) {
+    const { error: upsertError } = await supabaseClient
+      .from('users')
+      .upsert(
+        {
+          id: userId,
+          email: normalizedEmail,
+          has_access: true,
+          ...(customerId ? { stripe_customer_id: customerId } : {}),
+        },
+        { onConflict: 'id' }
+      )
+
+    if (!upsertError) {
+      return { granted: true }
+    }
+  }
 
   if (error) {
     return { granted: false, reason: "Impossible d'activer l'acces." }
   }
 
-  return { granted: true }
+  return { granted: false, reason: "Impossible d'activer l'acces." }
 }
 
 export default async function PaiementSuccessPage({
@@ -122,7 +203,12 @@ export default async function PaiementSuccessPage({
   let accessResult: AccessResult | null = null
 
   if (sessionId) {
-    accessResult = await grantAccessFromSession(sessionId, user.id)
+    accessResult = await grantAccessFromSession(
+      sessionId,
+      user.id,
+      user.email,
+      supabase
+    )
   }
 
   return (

@@ -32,6 +32,7 @@ export async function createCheckoutSession({
     mode: isRecurring ? 'subscription' : 'payment',
     payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
+    client_reference_id: userId,
     metadata: { supabase_user_id: userId },
     ...(isRecurring
       ? {

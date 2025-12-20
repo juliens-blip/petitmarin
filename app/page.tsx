@@ -145,7 +145,7 @@ export default function Home() {
         className="py-20"
         id="presentation"
         style={{
-          background: `linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.9)), url('https://www.dropbox.com/scl/fi/3iyuq7nbghq03mrldei2x/unnamed-2025-09-07T222151.578.png?rlkey=z7cr3f7htlf225yfl59mdy7yb&st=7uc6o97w&dl=1') center/cover no-repeat`,
+          background: `linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(255, 255, 255, 0.65)), url('https://www.dropbox.com/scl/fi/3iyuq7nbghq03mrldei2x/unnamed-2025-09-07T222151.578.png?rlkey=z7cr3f7htlf225yfl59mdy7yb&st=7uc6o97w&dl=1') center/cover no-repeat`,
         }}
       >
         <div className="container mx-auto px-6">

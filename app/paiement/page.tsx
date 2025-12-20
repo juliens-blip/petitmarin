@@ -22,7 +22,16 @@ export default function PaiementPage() {
       }
 
       if (!response.ok) {
-        setError('Impossible de creer la session de paiement.')
+        let message = 'Impossible de creer la session de paiement.'
+        try {
+          const payload = await response.json()
+          if (payload?.error) {
+            message = String(payload.error)
+          }
+        } catch (parseError) {
+          // Ignore JSON parse errors and keep default message.
+        }
+        setError(message)
         setIsLoading(false)
         return
       }

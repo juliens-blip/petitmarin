@@ -91,76 +91,131 @@ export async function POST(request: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-
-        if (session.mode !== 'subscription' || !session.subscription) {
-          console.log('Checkout completed ignored: not a subscription session')
-          break
-        }
-
-        const subscription = await stripe.subscriptions.retrieve(
-          session.subscription as string,
-          { expand: ['items.data.price', 'customer'] }
-        )
-
-        const matchesPrice = subscription.items.data.some(
-          (item) => item.price?.id === allowedPriceId
-        )
-
-        if (!matchesPrice) {
-          console.log('Subscription completed with another price, ignoring')
-          break
-        }
-
-        if (!isActiveSubscription(subscription.status)) {
-          console.log(
-            `Subscription status ${subscription.status} not granting access`
-          )
-          break
-        }
-
-        const supabaseUserId =
-          session.metadata?.supabase_user_id ||
-          (subscription.metadata?.supabase_user_id as string | undefined)
-        const customerId = getCustomerId(subscription.customer)
         const customerEmail = session.customer_email || session.customer_details?.email
+        const supabaseUserId = session.metadata?.supabase_user_id as string | undefined
 
-        const userId = await resolveUserId(supabase, {
-          supabaseUserId,
-          email: customerEmail,
-          customerId,
-        })
+        if (session.mode === 'subscription' && session.subscription) {
+          const subscription = await stripe.subscriptions.retrieve(
+            session.subscription as string,
+            { expand: ['items.data.price', 'customer'] }
+          )
 
-        if (!userId) {
-          console.error('Unable to map Stripe session to Supabase user', {
-            supabaseUserId,
-            customerEmail,
+          const matchesPrice = subscription.items.data.some(
+            (item) => item.price?.id === allowedPriceId
+          )
+
+          if (!matchesPrice) {
+            console.log('Subscription completed with another price, ignoring')
+            break
+          }
+
+          if (!isActiveSubscription(subscription.status)) {
+            console.log(
+              `Subscription status ${subscription.status} not granting access`
+            )
+            break
+          }
+
+          const customerId = getCustomerId(subscription.customer)
+          const userId = await resolveUserId(supabase, {
+            supabaseUserId:
+              supabaseUserId ||
+              (subscription.metadata?.supabase_user_id as string | undefined),
+            email: customerEmail,
             customerId,
           })
+
+          if (!userId) {
+            console.error('Unable to map Stripe session to Supabase user', {
+              supabaseUserId,
+              customerEmail,
+              customerId,
+            })
+            break
+          }
+
+          const updates: Database['public']['Tables']['users']['Update'] = {
+            has_access: true,
+          }
+
+          if (customerId) {
+            updates.stripe_customer_id = customerId
+          }
+
+          const { error: updateError } = await supabase
+            .from('users')
+            .update(updates)
+            .eq('id', userId)
+
+          if (updateError) {
+            console.error('Error updating user access from checkout:', updateError)
+            return NextResponse.json(
+              { error: 'Error updating user access' },
+              { status: 500 }
+            )
+          }
+
+          console.log(`Access granted to user: ${userId}`)
           break
         }
 
-        const updates: Database['public']['Tables']['users']['Update'] = {
-          has_access: true,
-        }
-
-        if (customerId) {
-          updates.stripe_customer_id = customerId
-        }
-
-        const { error: updateError } = await supabase
-          .from('users')
-          .update(updates)
-          .eq('id', userId)
-
-        if (updateError) {
-          console.error('Error updating user access from checkout:', updateError)
-          return NextResponse.json(
-            { error: 'Error updating user access' },
-            { status: 500 }
+        if (session.mode === 'payment') {
+          const lineItems = await stripe.checkout.sessions.listLineItems(
+            session.id,
+            { limit: 10 }
           )
+
+          const matchesPrice = lineItems.data.some(
+            (item) => item.price?.id === allowedPriceId
+          )
+
+          if (!matchesPrice) {
+            console.log('Payment completed with another price, ignoring')
+            break
+          }
+
+          const customerId = getCustomerId(session.customer)
+          const userId = await resolveUserId(supabase, {
+            supabaseUserId,
+            email: customerEmail,
+            customerId,
+          })
+
+          if (!userId) {
+            console.error('Unable to map Stripe session to Supabase user', {
+              supabaseUserId,
+              customerEmail,
+              customerId,
+            })
+            break
+          }
+
+          const updates: Database['public']['Tables']['users']['Update'] = {
+            has_access: true,
+          }
+
+          if (customerId) {
+            updates.stripe_customer_id = customerId
+          }
+
+          const { error: updateError } = await supabase
+            .from('users')
+            .update(updates)
+            .eq('id', userId)
+
+          if (updateError) {
+            console.error('Error updating user access from checkout:', updateError)
+            return NextResponse.json(
+              { error: 'Error updating user access' },
+              { status: 500 }
+            )
+          }
+
+          console.log(`Access granted to user: ${userId}`)
+          break
         }
 
-        console.log(`Access granted to user: ${userId}`)
+        console.log('Checkout completed ignored: unsupported session mode')
         break
       }
 

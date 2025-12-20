@@ -25,14 +25,21 @@ export async function createCheckoutSession({
     ? { customer: customerId }
     : { customer_email: email }
 
+  const price = await stripe.prices.retrieve(priceId)
+  const isRecurring = Boolean(price.recurring)
+
   const session = await stripe.checkout.sessions.create({
-    mode: 'subscription',
+    mode: isRecurring ? 'subscription' : 'payment',
     payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
     metadata: { supabase_user_id: userId },
-    subscription_data: {
-      metadata: { supabase_user_id: userId },
-    },
+    ...(isRecurring
+      ? {
+          subscription_data: {
+            metadata: { supabase_user_id: userId },
+          },
+        }
+      : {}),
     allow_promotion_codes: true,
     ...customerConfig,
     success_url: successUrl,

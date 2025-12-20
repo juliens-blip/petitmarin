@@ -1,12 +1,111 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
+import Stripe from 'stripe'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { createClient } from '@/lib/supabase/server'
+import { stripe } from '@/lib/stripe/client'
 import { Card, CardBody } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { CheckCircle2, Sparkles } from 'lucide-react'
 
-export default async function PaiementSuccessPage() {
+const allowedPriceId = process.env.STRIPE_PRICE_ID
+
+type AccessResult = {
+  granted: boolean
+  reason?: string
+}
+
+function isActiveSubscription(status: Stripe.Subscription.Status) {
+  return status === 'active' || status === 'trialing'
+}
+
+function getCustomerId(
+  customer: string | Stripe.Customer | Stripe.DeletedCustomer | null | undefined
+) {
+  if (!customer) return undefined
+  if (typeof customer === 'string') return customer
+  return 'id' in customer ? customer.id : undefined
+}
+
+async function grantAccessFromSession(
+  sessionId: string,
+  userId: string
+): Promise<AccessResult> {
+  if (!allowedPriceId) {
+    return { granted: false, reason: 'Stripe price id manquant.' }
+  }
+
+  const session = await stripe.checkout.sessions.retrieve(sessionId)
+  const sessionUserId = session.metadata?.supabase_user_id
+
+  if (!sessionUserId || sessionUserId !== userId) {
+    return { granted: false, reason: 'Session Stripe invalide pour cet utilisateur.' }
+  }
+
+  let customerId: string | undefined
+
+  if (session.mode === 'subscription' && session.subscription) {
+    const subscription = await stripe.subscriptions.retrieve(
+      session.subscription as string,
+      { expand: ['items.data.price', 'customer'] }
+    )
+
+    const matchesPrice = subscription.items.data.some(
+      (item) => item.price?.id === allowedPriceId
+    )
+
+    if (!matchesPrice || !isActiveSubscription(subscription.status)) {
+      return { granted: false, reason: 'Abonnement Stripe non valide.' }
+    }
+
+    customerId = getCustomerId(subscription.customer)
+  } else if (session.mode === 'payment') {
+    if (session.payment_status !== 'paid') {
+      return { granted: false, reason: 'Paiement non confirme.' }
+    }
+
+    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+      limit: 10,
+    })
+
+    const matchesPrice = lineItems.data.some(
+      (item) => item.price?.id === allowedPriceId
+    )
+
+    if (!matchesPrice) {
+      return { granted: false, reason: 'Tarif Stripe non valide.' }
+    }
+
+    customerId = getCustomerId(session.customer)
+  } else {
+    return { granted: false, reason: 'Mode Stripe non pris en charge.' }
+  }
+
+  const supabaseAdmin = createAdminClient()
+  const updates = {
+    has_access: true,
+    ...(customerId ? { stripe_customer_id: customerId } : {}),
+  }
+
+  const { error } = await supabaseAdmin
+    .from('users')
+    .update(updates)
+    .eq('id', userId)
+
+  if (error) {
+    return { granted: false, reason: "Impossible d'activer l'acces." }
+  }
+
+  return { granted: true }
+}
+
+export default async function PaiementSuccessPage({
+  searchParams,
+}: {
+  searchParams?: { session_id?: string }
+}) {
   const supabase = await createClient()
+  const sessionId = searchParams?.session_id
 
   // Check authentication
   const {
@@ -14,7 +113,16 @@ export default async function PaiementSuccessPage() {
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect('/connexion')
+    const nextPath = sessionId
+      ? `/paiement/success?session_id=${encodeURIComponent(sessionId)}`
+      : '/paiement/success'
+    redirect(`/connexion?next=${encodeURIComponent(nextPath)}`)
+  }
+
+  let accessResult: AccessResult | null = null
+
+  if (sessionId) {
+    accessResult = await grantAccessFromSession(sessionId, user.id)
   }
 
   return (
@@ -41,6 +149,13 @@ export default async function PaiementSuccessPage() {
               </p>
             </div>
 
+            {accessResult && !accessResult.granted && (
+              <p className="text-sm text-orange-600">
+                {accessResult.reason ??
+                  "Votre acces est en cours d'activation. Merci de reessayer dans quelques minutes."}
+              </p>
+            )}
+
             {/* Features List */}
             <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-2xl p-6 text-left space-y-3">
               <div className="flex items-center gap-3 text-gray-700">
@@ -64,13 +179,20 @@ export default async function PaiementSuccessPage() {
             {/* Next Steps */}
             <div className="pt-4">
               <p className="text-gray-600 mb-6">
-                Votre accès est maintenant activé. Commencez votre formation dès maintenant !
+                Votre acces est maintenant active. Commencez votre formation des maintenant !
               </p>
-              <Link href="/dashboard">
-                <Button variant="primary" size="lg" className="w-full sm:w-auto">
-                  Accéder à mon dashboard
-                </Button>
-              </Link>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link href="/modules/1">
+                  <Button variant="primary" size="lg" className="w-full sm:w-auto">
+                    Commencer le module 1
+                  </Button>
+                </Link>
+                <Link href="/dashboard">
+                  <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+                    Acceder a mon dashboard
+                  </Button>
+                </Link>
+              </div>
             </div>
 
             {/* Support */}

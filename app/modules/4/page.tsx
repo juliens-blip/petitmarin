@@ -3,6 +3,19 @@ import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 
 export default function Module4Page() {
+  const pdfResources = [
+    {
+      title: 'Negociation et achat - module 4',
+      url: 'https://www.dropbox.com/scl/fi/kgu5vl6ddsuzrey1wgg03/Negociation-et-Achat-de-Votre-Bateau-module-4.pdf?rlkey=nwr1hxoaeydptlhutllx2lrxu&st=4wbs7p6l&dl=1',
+      description: 'Guide pratique pour negocier et acheter.',
+    },
+    {
+      title: 'Negociation et achat d'un bateau d'occasion',
+      url: 'https://www.dropbox.com/scl/fi/plzeucnmms72tl3iih9ke/Negociation-and-Achat-dun-Bateau-dOccasion.pdf?rlkey=jhqj728od7x665axfyigpf4f9&st=lx9phh0i&dl=1',
+      description: 'Conseils pour le marche de l'occasion.',
+    },
+  ]
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -63,6 +76,42 @@ export default function Module4Page() {
                 <div className="p-6 text-gray-700">
                   <p>Rédiger un contrat de vente sécurisé et éviter les litiges.</p>
                 </div>
+              </div>
+            </div>
+
+            {/* Resources */}
+            <div className="bg-white rounded-xl shadow-md p-8 mb-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Ressources telechargeables
+              </h2>
+              <div className="space-y-4">
+                {pdfResources.map((resource, index) => (
+                  <a
+                    key={index}
+                    href={resource.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download
+                    className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-lg hover:border-[#007bff] hover:bg-blue-50 transition-all group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                        <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900 group-hover:text-[#007bff]">
+                          {resource.title}
+                        </h3>
+                        <p className="text-sm text-gray-600">{resource.description}</p>
+                      </div>
+                    </div>
+                    <svg className="w-6 h-6 text-gray-400 group-hover:text-[#007bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </a>
+                ))}
               </div>
             </div>
 

@@ -5,14 +5,14 @@ import { Footer } from '@/components/layout/Footer'
 export default function Module1Page() {
   const pdfResources = [
     {
-      title: 'Guide complet du budget bateau',
-      url: 'https://www.dropbox.com/s/example1.pdf?dl=1',
-      description: 'Calculez votre budget total, coûts cachés inclus',
+      title: 'Budget et financement - diapo module 1',
+      url: 'https://www.dropbox.com/scl/fi/s92j0onjqrkjq67w1eicz/Budget-and-Financement-pour-Votre-Premier-Bateau-diapo-module1.pdf?rlkey=a9mt7et3cjf30zx1oay33swvx&st=5u3z08ma&dl=1',
+      description: 'Presentation generale du budget et du financement.',
     },
     {
-      title: 'Checklist des coûts d\'acquisition',
-      url: 'https://www.dropbox.com/s/example2.pdf?dl=1',
-      description: 'Liste complète des frais à prévoir',
+      title: 'Cas pratique - Voilier familial',
+      url: 'https://www.dropbox.com/scl/fi/h75xqs5uatvb57dzjbzll/Cas-pratique-Voilier-familial.pdf?rlkey=mnq73k50q6ifco2q9btmzxt49&st=f5037tke&dl=1',
+      description: 'Etude de cas pour appliquer la methode.',
     },
   ]
 
@@ -216,6 +216,7 @@ export default function Module1Page() {
                     href={resource.url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    download
                     className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-lg hover:border-[#007bff] hover:bg-blue-50 transition-all group"
                   >
                     <div className="flex items-center gap-4">

@@ -181,9 +181,10 @@ export default function ProgrammesPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {modules.map((module) => (
-              <div
+              <Link
                 key={module.number}
-                className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow"
+                href={`/modules/${module.number}`}
+                className="block bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition-shadow"
               >
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-[#007bff] to-[#28a745] rounded-full flex items-center justify-center text-white font-bold text-xl">
@@ -194,7 +195,7 @@ export default function ProgrammesPage() {
                   </h3>
                 </div>
                 <p className="text-gray-600">{module.description}</p>
-              </div>
+              </Link>
             ))}
           </div>
         </div>

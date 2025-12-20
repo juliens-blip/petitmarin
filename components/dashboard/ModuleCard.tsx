@@ -20,8 +20,11 @@ export function ModuleCard({ module, progress = 0 }: ModuleCardProps) {
     'Avancé': 'danger' as const,
   }
 
-  return (
-    <Card variant="hover" className="relative overflow-hidden">
+  const card = (
+    <Card
+      variant={module.isLocked ? 'default' : 'hover'}
+      className="relative overflow-hidden"
+    >
       <CardBody className="space-y-4">
         {/* Icon et Lock */}
         <div className="flex items-start justify-between">
@@ -80,21 +83,30 @@ export function ModuleCard({ module, progress = 0 }: ModuleCardProps) {
 
         {/* Action Button */}
         {module.isLocked ? (
-          <Button variant="ghost" disabled className="w-full">
+          <Button variant="ghost" disabled className="w-full" type="button">
             <Lock size={16} />
             Module verrouillé
           </Button>
         ) : (
-          <Link href={`/modules/${module.id}`} className="block w-full">
-            <Button
-              variant={isCompleted ? 'success' : 'primary'}
-              className="w-full"
-            >
-              {isCompleted ? 'Revoir' : isStarted ? 'Continuer' : 'Commencer'}
-            </Button>
-          </Link>
+          <Button
+            variant={isCompleted ? 'success' : 'primary'}
+            className="w-full"
+            type="button"
+          >
+            {isCompleted ? 'Revoir' : isStarted ? 'Continuer' : 'Commencer'}
+          </Button>
         )}
       </CardBody>
     </Card>
+  )
+
+  if (module.isLocked) {
+    return card
+  }
+
+  return (
+    <Link href={`/modules/${module.id}`} className="block h-full">
+      {card}
+    </Link>
   )
 }
